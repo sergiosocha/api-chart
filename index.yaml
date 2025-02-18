@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  api-chart:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-02-18T11:18:33.0015649-05:00"
+    description: A Helm chart for Kubernetes
+    digest: e1bb7f40ce6a50aef78caecfa77ad0b96ed0c334e23a8413df234f444c77aa9d
+    name: api-chart
+    type: application
+    urls:
+    - https://github.com/sergiosocha/api-chart/api-chart-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-02-18T11:18:33.0005298-05:00"
