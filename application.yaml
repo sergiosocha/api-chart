@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: api-chart
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/sergiosocha/api-chart.git'
+    targetRevision: HEAD
+    path: api-chart
+  destination:
+    server: 'https://a755af42-8e5b-4b67-8a08-d8b713ed0d0a.k8s.ondigitalocean.com'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

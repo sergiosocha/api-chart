@@ -1,0 +1,17 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: api-chart-sync-policy
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: 'https://github.com/sergiosocha/api-chart.git'
+      revision: HEAD
+      directory:
+        path: api-chart
+  template:
+    spec:
+      syncPolicy:
+        automated: {}
