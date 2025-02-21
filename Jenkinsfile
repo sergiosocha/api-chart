@@ -10,7 +10,7 @@ pipeline {
     stages {
          stage('Checkout') {
             steps {
-                git 'https://github.com/sergiosocha/api-chart.git'
+                git branch: 'main', 'https://github.com/sergiosocha/api-chart.git'
             }
         }
 
