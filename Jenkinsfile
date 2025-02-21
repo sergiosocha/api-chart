@@ -65,16 +65,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            sh 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'
-        }
-        success {
-            echo 'El despliegue se realizó correctamente'
-        }
-        failure {
-            echo 'El despliegue falló'
-        }
-    }
 }
