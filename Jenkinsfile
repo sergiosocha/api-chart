@@ -9,17 +9,16 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+         stage('Checkout') {
             steps {
-                
-                git 'https://tu-repositorio-de-git/api-repo.git'
+                git 'https://github.com/sergiosocha/api-chart.git'
             }
         }
 
         stage('Compile Project') {
             steps {
-                
-                sh 'mvn clean install' 
+                sh 'chmod +x ./gradlew'
+                sh './gradlew clean build'
             }
         }
 
@@ -36,12 +35,11 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                
-                script {
-                    sh """
-                    echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                    """
+                 script {
+                    withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD"
+                        sh 'docker push sergioss21/spring-api'
+                    }
                 }
             }
         }
@@ -71,7 +69,6 @@ pipeline {
 
     post {
         always {
-            // Limpiar imágenes locales para ahorrar espacio
             sh 'docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true'
         }
         success {
