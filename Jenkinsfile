@@ -14,12 +14,6 @@ pipeline {
             }
         }
 
-        stage('Compile Project') {
-            steps {
-                sh 'chmod +x ./gradlew'
-                sh './gradlew clean build'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
