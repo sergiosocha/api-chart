@@ -2,61 +2,49 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'sergios21/api-patrones-chart'
-        IMAGE_TAG = 'v1.0'
-        HELM_CHART_DIR = './api_chart'  
+        HELM_REPO_URL = 'https://sergiosocha.github.io/api-chart-tgz/'  // Repositorio Helm en GitHub Pages
+        HELM_CHART = 'api-chart'                                         // Nombre del Chart
+        HELM_VERSION = '0.1.0'                                           // Versión del Chart
     }
 
     stages {
-         stage('Checkout') {
+        // 1. Clonar el repositorio de definición del Chart de Helm desde GitHub Pages
+        stage('Checkout Helm Chart') {
             steps {
-                git branch: 'main', 'https://github.com/sergiosocha/api-chart.git'
-            }
-        }
-
-
-        stage('Build Docker Image') {
-            steps {
-                
                 script {
                     sh """
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    helm repo add api-chart-repo ${HELM_REPO_URL}
+                    helm repo update
                     """
                 }
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                 script {
-                    withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD"
-                        sh 'docker push sergioss21/spring-api'
-                    }
-                }
-            }
-        }
-
-        stage('Update Helm Chart') {
-            steps {
-                
-                script {
-                    sh """
-                    sed -i 's/tag:.*/tag: "${IMAGE_TAG}"/' ${HELM_CHART_DIR}/values.yaml
-                    """
-                }
-            }
-        }
-
+        // 2. Desplegar la aplicación con ArgoCD usando el Chart de Helm
         stage('Deploy with ArgoCD') {
             steps {
-                
                 script {
+                    sh """
+                    helm upgrade --install api-release api-chart-repo/${HELM_CHART} --version ${HELM_VERSION}
+                    """
+                    // Sincronizar con ArgoCD
                     sh """
                     argocd app sync api-release
                     """
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finalizado'
+        }
+        success {
+            echo 'Despliegue exitoso'
+        }
+        failure {
+            echo 'Error en el despliegue'
         }
     }
 }
