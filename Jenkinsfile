@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
-        IMAGE_NAME = 'sergios21/patrones_api'
+        IMAGE_NAME = 'sergios21/api-patrones-chart'
         IMAGE_TAG = 'v1.0'
         HELM_CHART_DIR = './api_chart'  
     }
