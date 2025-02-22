@@ -1,4 +1,6 @@
 nameOverride: api-chart
+deploymentName: api-chart-deployment
+
 replicaCount: 1
 image:
   repository: sergios21/patrones_api
