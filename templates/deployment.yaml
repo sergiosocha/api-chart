@@ -33,7 +33,4 @@ spec:
           - name: DB_USER
             value: root   
           - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: mysql-secret   
-                key: password
+            value: password
