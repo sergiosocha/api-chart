@@ -7,9 +7,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/sergiosocha/api-chart.git'
-    targetRevision: HEAD
-    path: api-chart
+    repoURL: https://sergiosocha.github.io/api-chart-tgz/  # ✅ URL de GitHub Pages, no del repo Git
+    chart: api-chart
   destination:
     server: 'https://a755af42-8e5b-4b67-8a08-d8b713ed0d0a.k8s.ondigitalocean.com'
     namespace: default
