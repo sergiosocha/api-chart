@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.nameOverride | default .Chart.Name }}-service
+  namespace: {{ .Values.namespace | default "default" }} 
   labels:
     app: {{ .Values.nameOverride | default .Chart.Name }}
 spec:
