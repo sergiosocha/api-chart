@@ -1,3 +1,4 @@
+namespace: default
 nameOverride: api-chart
 deploymentName: api-chart-deployment
 
