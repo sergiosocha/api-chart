@@ -1,50 +1,89 @@
 pipeline {
     agent any
 
-    environment {
-        HELM_REPO_URL = 'https://sergiosocha.github.io/api-chart-tgz/'  // Repositorio Helm en GitHub Pages
-        HELM_CHART = 'api-chart'                                         // Nombre del Chart
-        HELM_VERSION = '0.1.0'                                           // Versión del Chart
-    }
-
     stages {
-        // 1. Clonar el repositorio de definición del Chart de Helm desde GitHub Pages
-        stage('Checkout Helm Chart') {
+        stage('Checkout') {
             steps {
-                script {
+
+                git 'https://github.com/sergiosocha/patrones-back.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+
+                sh 'docker build -t sergioss21/patrones-api .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+
+                withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD"
+                    sh 'docker push sergioss21/patrones-api'
+                }
+            }
+        }
+
+        stage('Update Helm Chart') {
+            steps {
+
+                sh """
+                yq eval '.image.tag = "latest"' -i helm/patrones-back/values.yaml
+                yq eval '.image.repository = "sergioss21/patrones-api"' -i helm/patrones-back/values.yaml
+                """
+            }
+        }
+
+        stage('Package Helm Chart') {
+            steps {
+
+                sh 'helm package helm/patrones-back'
+            }
+        }
+
+        stage('Push Helm Chart') {
+            steps {
+
+                withCredentials([usernamePassword(credentialsId: 'HelmRepoCreds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh """
-                    helm repo add api-chart-repo ${HELM_REPO_URL}
-                    helm repo update
+                    curl -u ${USERNAME}:${PASSWORD} --upload-file patrones-back-*.tgz https://github.com/sergiosocha/api-chart-tgz
                     """
                 }
             }
         }
 
-        // 2. Desplegar la aplicación con ArgoCD usando el Chart de Helm
-        stage('Deploy with ArgoCD') {
+        stage('Update ArgoCD Manifest') {
             steps {
-                script {
-                    sh """
-                    helm upgrade --install api-release api-chart-repo/${HELM_CHART} --version ${HELM_VERSION}
-                    """
-                    // Sincronizar con ArgoCD
-                    sh """
-                    argocd app sync api-release
-                    """
-                }
+
+                git branch: 'main', credentialsId: 'GitHubCreds', url: 'https://github.com/sergiosocha/api-chart.git'
+
+
+                sh """
+                yq eval '.spec.template.spec.containers[0].image = "sergioss21/patrones-api:latest"' -i deployment.yaml
+                """
+
+                sh """
+                git add deployment.yaml
+                git commit -m "Update Argo manifest with latest image"
+                git push origin main
+                """
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finalizado'
-        }
-        success {
-            echo 'Despliegue exitoso'
-        }
-        failure {
-            echo 'Error en el despliegue'
+
+            sh 'docker rmi sergioss21/patrones-api'
         }
     }
 }
