@@ -21,10 +21,6 @@ spec:
         - containerPort: 8080
         resources:
           {{- toYaml .Values.resources | nindent 12 }}
-        readinessProbe:
-          httpGet:
-            path: /user/todos
-            port: 8080
         env:
           - name: DB_SERVER_IP
             value: mysql.sergio.svc.cluster.local.   
