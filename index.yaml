@@ -9,6 +9,6 @@ entries:
     name: api-chart
     type: application
     urls:
-    - https://github.com/sergiosocha/api-chart-tgz.git/api-chart-0.1.0.tgz
+    - https://sergiosocha.github.io/api-chart-tgz/charts/api-chart-0.1.0.tgz
     version: 0.1.0
 generated: "2025-02-21T11:58:56.17246-05:00"
